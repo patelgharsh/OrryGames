@@ -1,0 +1,88 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f9fafb;
+  --text-primary: #111827;
+  --text-secondary: #6b7280;
+  --card-bg: #ffffff;
+  --card-border: #e5e7eb;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+  --transition-duration: 0.4s;
+}
+
+body.dark-mode {
+  --bg-primary: linear-gradient(135deg, #3a1c71, #5f2c82, #8e44ad);
+  --bg-secondary: rgba(255, 255, 255, 0.05);
+  --text-primary: #ffffff;
+  --text-secondary: #e5e7eb;
+  --card-bg: rgba(255, 255, 255, 0.1);
+  --card-border: rgba(255, 255, 255, 0.2);
+  --shadow-color: rgba(0, 0, 0, 0.3);
+}
+
+@layer base {
+  * {
+    transition: background-color var(--transition-duration) ease,
+                color var(--transition-duration) ease,
+                border-color var(--transition-duration) ease,
+                box-shadow var(--transition-duration) ease;
+  }
+
+  html.reduce-motion * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  body {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    min-height: 100vh;
+  }
+
+  body.light-mode {
+    background: #ffffff;
+  }
+
+  body.dark-mode {
+    background: linear-gradient(135deg, #3a1c71, #5f2c82, #8e44ad);
+    background-attachment: fixed;
+  }
+}
+
+@layer utilities {
+  .animate-in {
+    animation: fadeIn 0.3s ease-in-out;
+  }
+
+  .fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+  }
+
+  .slide-in-from-top {
+    animation: slideInFromTop 0.3s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideInFromTop {
+    from {
+      transform: translateY(-10px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+}
