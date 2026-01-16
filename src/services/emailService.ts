@@ -1,5 +1,3 @@
-import emailjs from '@emailjs/browser';
-
 export interface EmailFormData {
   name: string;
   email: string;
@@ -11,14 +9,6 @@ export interface EmailResponse {
   success: boolean;
   message: string;
 }
-
-const getEnvVariable = (key: string): string => {
-  const value = import.meta.env[key];
-  if (!value) {
-    throw new Error(`Missing environment variable: ${key}`);
-  }
-  return value;
-};
 
 const validateEmail = (email: string): boolean => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -54,28 +44,36 @@ export const sendEmail = async (formData: EmailFormData): Promise<EmailResponse>
       };
     }
 
-    const serviceId = getEnvVariable('VITE_EMAILJS_SERVICE_ID');
-    const templateId = getEnvVariable('VITE_EMAILJS_TEMPLATE_ID');
-    const publicKey = getEnvVariable('VITE_EMAILJS_PUBLIC_KEY');
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+    if (!supabaseUrl) {
+      throw new Error('Missing Supabase configuration');
+    }
 
-    const templateParams = {
-  name: formData.name,
-  email: formData.email,
-  subject: formData.subject,
-  message: formData.message,
-  time: new Date().toLocaleString()
-};
+    const response = await fetch(`${supabaseUrl}/functions/v1/send-email`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        name: formData.name,
+        email: formData.email,
+        subject: formData.subject,
+        message: formData.message,
+      }),
+    });
 
-    await emailjs.send(
-      serviceId,
-      templateId,
-      templateParams,
-      publicKey
-    );
+    const result = await response.json();
+
+    if (!response.ok) {
+      return {
+        success: false,
+        message: result.message || 'Failed to send message. Please try again later.'
+      };
+    }
 
     return {
-      success: true,
-      message: 'Your message has been sent successfully! We will get back to you soon.'
+      success: result.success,
+      message: result.message
     };
   } catch (error) {
     console.error('Email send error:', error);
