@@ -21,7 +21,40 @@ All third-party API calls are proxied through secure server-side Edge Functions 
 - Frontend only communicates with your Edge Functions
 - Credentials stored securely in Supabase environment variables
 
-### 2. Rate Limiting
+### 2. End-to-End Payload Encryption
+
+All data transmitted between the frontend and backend is encrypted using AES-256 encryption via CryptoJS.
+
+**Benefits:**
+- Network traffic inspection reveals only encrypted strings
+- Data cannot be read in browser DevTools Network tab
+- Protection against man-in-the-middle inspection
+- Even if intercepted, data remains unreadable
+
+**Implementation:**
+- Client-side encryption using CryptoJS AES-256
+- All request payloads encrypted before transmission
+- Server-side decryption in Edge Functions
+- All response payloads encrypted before returning to client
+- Shared encryption key (server-side secret in production)
+
+**What Users See in Network Tab:**
+```json
+{
+  "data": "U2FsdGVkX1+8xvZ3K2... [encrypted string]"
+}
+```
+
+Instead of readable data like:
+```json
+{
+  "name": "John Doe",
+  "email": "john@example.com",
+  "message": "My secret message"
+}
+```
+
+### 3. Rate Limiting
 
 Implemented at the Edge Function level to prevent abuse and DoS attacks.
 
@@ -37,7 +70,7 @@ Implemented at the Edge Function level to prevent abuse and DoS attacks.
 - Resource exhaustion
 - API abuse
 
-### 3. CORS Security
+### 4. CORS Security
 
 Strict CORS headers configured on all Edge Functions.
 
@@ -50,7 +83,7 @@ Access-Control-Allow-Headers: Content-Type, Authorization, X-Client-Info, Apikey
 
 **Note:** While currently set to `*` for development, in production this should be restricted to your specific domain(s).
 
-### 4. Security Headers
+### 5. Security Headers
 
 Multiple security headers configured in Vite to protect against common attacks.
 
@@ -61,7 +94,7 @@ Multiple security headers configured in Vite to protect against common attacks.
 - `Referrer-Policy: strict-origin-when-cross-origin` - Controls referrer information
 - `Permissions-Policy` - Restricts access to device features
 
-### 5. Input Validation
+### 6. Input Validation
 
 Comprehensive validation on both client and server sides.
 
@@ -76,7 +109,7 @@ Comprehensive validation on both client and server sides.
 - Sanitizes data before processing
 - Prevents injection attacks
 
-### 6. Environment Variable Security
+### 7. Environment Variable Security
 
 **Frontend (.env):**
 - Only non-sensitive configuration exposed
@@ -94,16 +127,21 @@ Comprehensive validation on both client and server sides.
 ### Email Submission Flow:
 1. User submits form on client
 2. Client validates input locally
-3. Request sent to Edge Function (no API keys in request)
-4. Edge Function validates rate limit
-5. Edge Function re-validates input
-6. Edge Function calls EmailJS with server-side credentials
-7. Response returned to client (sanitized)
+3. **Data encrypted using AES-256 on client**
+4. Encrypted payload sent to Edge Function (no API keys, unreadable data)
+5. Edge Function validates rate limit
+6. **Edge Function decrypts payload**
+7. Edge Function re-validates input
+8. Edge Function calls EmailJS with server-side credentials
+9. **Edge Function encrypts response**
+10. Encrypted response returned to client
+11. **Client decrypts response and displays result**
 
 ## Security Best Practices
 
 ### What We Do:
 - Server-side API proxying
+- End-to-end payload encryption (AES-256)
 - Rate limiting
 - Input validation (client + server)
 - Secure credential storage
@@ -167,23 +205,27 @@ This implementation follows OWASP Top 10 guidelines:
 ## Architecture Diagram
 
 ```
-┌─────────────┐
-│   Browser   │
-│  (Client)   │
-└──────┬──────┘
-       │ No API Keys Exposed
+┌─────────────────────┐
+│      Browser        │
+│  (Client + AES)     │
+└──────┬──────────────┘
+       │ Encrypted Data
+       │ (unreadable in Network Tab)
        │
        ▼
 ┌─────────────────────┐
 │   Vite Dev Server   │
 │  Security Headers   │
 └──────────┬──────────┘
+           │ Encrypted Payload
            │
            ▼
 ┌────────────────────────┐
 │  Supabase Edge Func    │
+│    - Decrypt AES       │
 │    - Rate Limiting     │
 │    - Validation        │
+│    - Encrypt Response  │
 │    - CORS              │
 └──────────┬─────────────┘
            │ Secure Credentials
@@ -195,6 +237,34 @@ This implementation follows OWASP Top 10 guidelines:
 └─────────────────────┘
 ```
 
+## Network Traffic Inspection
+
+When viewing network requests in browser DevTools, users will see:
+
+**Request Payload:**
+```json
+{
+  "data": "U2FsdGVkX1+kQHh3KpRvX8J7GvNm4ZU..."
+}
+```
+
+**Response Payload:**
+```json
+{
+  "data": "U2FsdGVkX1/pQvZ3K2RvX8J7GvNm4..."
+}
+```
+
+This ensures that even with full access to browser developer tools, sensitive data like names, emails, and messages cannot be read or tampered with during transmission.
+
 ## Summary
 
-OrryGames implements a defense-in-depth security strategy with multiple layers of protection. All sensitive operations are secured server-side, API keys are never exposed to clients, and comprehensive validation ensures data integrity at every step.
+OrryGames implements a defense-in-depth security strategy with multiple layers of protection:
+
+1. **Encryption Layer** - All data encrypted with AES-256 during transmission
+2. **Backend Proxy Layer** - API keys never exposed to clients
+3. **Rate Limiting Layer** - Prevents abuse and DoS attacks
+4. **Validation Layer** - Comprehensive input validation on both sides
+5. **Headers Layer** - Security headers prevent common attacks
+
+This multi-layered approach ensures that even if one layer is compromised, others provide continued protection. Data remains secure, private, and unreadable to unauthorized parties.

@@ -1,3 +1,5 @@
+import { encryptData, decryptData } from '../lib/encryption';
+
 export interface EmailFormData {
   name: string;
   email: string;
@@ -49,31 +51,36 @@ export const sendEmail = async (formData: EmailFormData): Promise<EmailResponse>
       throw new Error('Missing Supabase configuration');
     }
 
+    const encryptedPayload = encryptData({
+      name: formData.name,
+      email: formData.email,
+      subject: formData.subject,
+      message: formData.message,
+    });
+
     const response = await fetch(`${supabaseUrl}/functions/v1/send-email`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        name: formData.name,
-        email: formData.email,
-        subject: formData.subject,
-        message: formData.message,
+        data: encryptedPayload,
       }),
     });
 
     const result = await response.json();
+    const decryptedResult = result.data ? decryptData(result.data) : result;
 
     if (!response.ok) {
       return {
         success: false,
-        message: result.message || 'Failed to send message. Please try again later.'
+        message: decryptedResult.message || 'Failed to send message. Please try again later.'
       };
     }
 
     return {
-      success: result.success,
-      message: result.message
+      success: decryptedResult.success,
+      message: decryptedResult.message
     };
   } catch (error) {
     console.error('Email send error:', error);

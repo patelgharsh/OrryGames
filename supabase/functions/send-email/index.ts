@@ -1,10 +1,25 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+import CryptoJS from "npm:crypto-js@4.2.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey",
 };
+
+const ENCRYPTION_KEY = 'OrryGames_SecureKey_2026_v1_AES256';
+
+function encryptData(data: any): string {
+  const jsonString = JSON.stringify(data);
+  const encrypted = CryptoJS.AES.encrypt(jsonString, ENCRYPTION_KEY).toString();
+  return encrypted;
+}
+
+function decryptData(encryptedData: string): any {
+  const decrypted = CryptoJS.AES.decrypt(encryptedData, ENCRYPTION_KEY);
+  const jsonString = decrypted.toString(CryptoJS.enc.Utf8);
+  return JSON.parse(jsonString);
+}
 
 interface RateLimitStore {
   [key: string]: { count: number; resetTime: number };
@@ -54,10 +69,13 @@ Deno.serve(async (req: Request) => {
     const clientIP = req.headers.get("x-forwarded-for") || "unknown";
 
     if (!checkRateLimit(clientIP)) {
+      const encryptedError = encryptData({
+        success: false,
+        message: "Rate limit exceeded. Please try again later.",
+      });
       return new Response(
         JSON.stringify({
-          success: false,
-          message: "Rate limit exceeded. Please try again later.",
+          data: encryptedError,
         }),
         {
           status: 429,
@@ -69,13 +87,17 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    const { name, email, subject, message }: EmailRequest = await req.json();
+    const body = await req.json();
+    const { name, email, subject, message }: EmailRequest = decryptData(body.data);
 
     if (!name?.trim() || !email?.trim() || !subject?.trim() || !message?.trim()) {
+      const encryptedError = encryptData({
+        success: false,
+        message: "All fields are required",
+      });
       return new Response(
         JSON.stringify({
-          success: false,
-          message: "All fields are required",
+          data: encryptedError,
         }),
         {
           status: 400,
@@ -89,10 +111,13 @@ Deno.serve(async (req: Request) => {
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
+      const encryptedError = encryptData({
+        success: false,
+        message: "Invalid email address",
+      });
       return new Response(
         JSON.stringify({
-          success: false,
-          message: "Invalid email address",
+          data: encryptedError,
         }),
         {
           status: 400,
@@ -135,10 +160,14 @@ Deno.serve(async (req: Request) => {
       throw new Error("Failed to send email");
     }
 
+    const encryptedSuccess = encryptData({
+      success: true,
+      message: "Your message has been sent successfully! We will get back to you soon.",
+    });
+
     return new Response(
       JSON.stringify({
-        success: true,
-        message: "Your message has been sent successfully! We will get back to you soon.",
+        data: encryptedSuccess,
       }),
       {
         status: 200,
@@ -151,10 +180,14 @@ Deno.serve(async (req: Request) => {
   } catch (error) {
     console.error("Email send error:", error);
 
+    const encryptedError = encryptData({
+      success: false,
+      message: "Failed to send message. Please try again later or contact us directly at contact.orrygames@gmail.com",
+    });
+
     return new Response(
       JSON.stringify({
-        success: false,
-        message: "Failed to send message. Please try again later or contact us directly at contact.orrygames@gmail.com",
+        data: encryptedError,
       }),
       {
         status: 500,
