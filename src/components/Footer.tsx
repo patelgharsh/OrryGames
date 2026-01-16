@@ -13,7 +13,7 @@ export default function Footer({ onNavigate }: FooterProps) {
     Popular: [
       { label: 'All Games', page: 'games' },
       { label: 'Home', page: 'home' },
-      { label: 'About', page: 'about' },
+      { label: 'About Us', page: 'about' },
     ]
   };
 
