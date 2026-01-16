@@ -59,12 +59,12 @@ export const sendEmail = async (formData: EmailFormData): Promise<EmailResponse>
     const publicKey = getEnvVariable('VITE_EMAILJS_PUBLIC_KEY');
 
     const templateParams = {
-      from_name: formData.name,
-      from_email: formData.email,
-      subject: formData.subject,
-      message: formData.message,
-      to_email: 'contact.orrygames@gmail.com'
-    };
+  name: formData.name,
+  email: formData.email,
+  subject: formData.subject,
+  message: formData.message,
+  time: new Date().toLocaleString()
+};
 
     await emailjs.send(
       serviceId,
