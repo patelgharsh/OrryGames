@@ -317,24 +317,27 @@ export default function PrivacyPolicyPage({ onNavigate }: PrivacyPolicyPageProps
           </section>
 
           <section className="mb-10">
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4 border-b-4 border-orange-500 pb-2 inline-block">
-              14. Consent
-            </h2>
-            <div className="bg-gradient-to-r from-orange-50 to-pink-50 dark:from-orange-900/20 dark:to-pink-900/20 border-2 border-orange-400 p-6 rounded-lg mt-4">
-              <p className="text-gray-900 dark:text-white font-bold text-lg mb-2">
-                Your Consent
-              </p>
-              <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-                By using our website (https://orrygames.com), you hereby consent to our Privacy Policy and agree to its terms.
-                If you do not agree with this Privacy Policy, please do not use our website. Your continued use of the website
-                following the posting of changes to this policy will be deemed your acceptance of those changes.
-            </div>
-                     <div></p>
-              <p className="text-right text-sm text-gray-500 dark:text-gray-400 mt-4 italic">
+  <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4 border-b-4 border-orange-500 pb-2 inline-block">
+    14. Consent
+  </h2>
+
+  <div className="bg-gradient-to-r from-orange-50 to-pink-50 dark:from-orange-900/20 dark:to-pink-900/20 border-2 border-orange-400 p-6 rounded-lg mt-4">
+    <p className="text-gray-900 dark:text-white font-bold text-lg mb-2">
+      Your Consent
+    </p>
+
+    <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+      By using our website (https://orrygames.com), you hereby consent to our Privacy Policy and agree to its terms.
+      If you do not agree with this Privacy Policy, please do not use our website. Your continued use of the website
+      following the posting of changes to this policy will be deemed your acceptance of those changes.
+    </p>
+
+    <p className="text-right text-sm text-gray-500 dark:text-gray-400 mt-4 italic">
       Last Updated: 14 January 2026
     </p>
-              </div>
-          </section>
+  </div>
+</section>
+
 
         </div>
 
