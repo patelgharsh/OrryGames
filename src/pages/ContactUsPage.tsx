@@ -1,22 +1,44 @@
-import { Mail, Globe, Send } from 'lucide-react';
+import { Mail, Globe, Send, CheckCircle, XCircle, Loader2 } from 'lucide-react';
 import { useState } from 'react';
+import { sendEmail, type EmailFormData } from '../services/emailService';
 
 interface ContactUsPageProps {
   onNavigate: (page: string) => void;
 }
 
 export default function ContactUsPage({ onNavigate }: ContactUsPageProps) {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<EmailFormData>({
     name: '',
     email: '',
     subject: '',
     message: ''
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [statusMessage, setStatusMessage] = useState<{
+    type: 'success' | 'error' | null;
+    text: string;
+  }>({ type: null, text: '' });
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    alert('Thank you for your message! We will get back to you soon.');
-    setFormData({ name: '', email: '', subject: '', message: '' });
+    setIsLoading(true);
+    setStatusMessage({ type: null, text: '' });
+
+    const response = await sendEmail(formData);
+
+    setIsLoading(false);
+
+    if (response.success) {
+      setStatusMessage({ type: 'success', text: response.message });
+      setFormData({ name: '', email: '', subject: '', message: '' });
+    } else {
+      setStatusMessage({ type: 'error', text: response.message });
+    }
+
+    setTimeout(() => {
+      setStatusMessage({ type: null, text: '' });
+    }, 8000);
   };
 
   const contactMethods = [
@@ -117,12 +139,43 @@ export default function ContactUsPage({ onNavigate }: ContactUsPageProps) {
                 />
               </div>
 
+              {statusMessage.type && (
+                <div
+                  className={`p-4 rounded-lg flex items-start gap-3 ${
+                    statusMessage.type === 'success'
+                      ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300'
+                      : 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300'
+                  }`}
+                >
+                  {statusMessage.type === 'success' ? (
+                    <CheckCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                  ) : (
+                    <XCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                  )}
+                  <p className="text-sm font-semibold">{statusMessage.text}</p>
+                </div>
+              )}
+
               <button
                 type="submit"
-                className="w-full bg-orange-500 text-white px-8 py-4 rounded-lg font-bold hover:bg-orange-600 transition-colors flex items-center justify-center gap-2 shadow-lg"
+                disabled={isLoading}
+                className={`w-full px-8 py-4 rounded-lg font-bold transition-all flex items-center justify-center gap-2 shadow-lg ${
+                  isLoading
+                    ? 'bg-orange-400 cursor-not-allowed'
+                    : 'bg-orange-500 hover:bg-orange-600'
+                } text-white`}
               >
-                <Send size={20} />
-                Send Message
+                {isLoading ? (
+                  <>
+                    <Loader2 size={20} className="animate-spin" />
+                    Sending...
+                  </>
+                ) : (
+                  <>
+                    <Send size={20} />
+                    Send Message
+                  </>
+                )}
               </button>
             </form>
           </div>
