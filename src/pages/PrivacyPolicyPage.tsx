@@ -331,10 +331,6 @@ export default function PrivacyPolicyPage({ onNavigate }: PrivacyPolicyPageProps
       If you do not agree with this Privacy Policy, please do not use our website. Your continued use of the website
       following the posting of changes to this policy will be deemed your acceptance of those changes.
     </p>
-
-    <p className="text-right text-sm text-gray-500 dark:text-gray-400 mt-4 italic">
-      Last Updated: 14 January 2026
-    </p>
   </div>
 </section>
 
