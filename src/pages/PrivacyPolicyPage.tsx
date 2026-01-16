@@ -331,6 +331,7 @@ export default function PrivacyPolicyPage({ onNavigate }: PrivacyPolicyPageProps
       If you do not agree with this Privacy Policy, please do not use our website. Your continued use of the website
       following the posting of changes to this policy will be deemed your acceptance of those changes.
     </p>
+    
   </div>
 </section>
 
