@@ -305,7 +305,7 @@ export default function PrivacyPolicyPage({ onNavigate }: PrivacyPolicyPageProps
             <div className="bg-gray-100 dark:bg-gray-700 p-5 rounded-lg mt-4">
               <p className="text-gray-900 dark:text-white font-semibold">OrryGames</p>
               <p className="text-gray-700 dark:text-gray-300 mt-2">
-                <strong>Email:</strong> <a href="mailto:privacy@orrygames.com" className="text-blue-600 hover:underline">contact.orrygames@gmail.com</a>
+                <strong>Email:</strong> <a href="mailto:contact.orrygames@gmail.com" className="text-blue-600 hover:underline">contact.orrygames@gmail.com</a>
               </p>
               <p className="text-gray-700 dark:text-gray-300 mt-2">
                 <strong>Website:</strong> <a href="https://orrygames.com" className="text-blue-600 hover:underline">https://orrygames.com</a>
