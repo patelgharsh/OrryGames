@@ -7,58 +7,55 @@ interface TermsOfServicePageProps {
 export default function TermsOfServicePage({ onNavigate }: TermsOfServicePageProps) {
   const sections = [
     {
-      title: 'Acceptance of Terms',
+      title: '1. Acceptance of Terms',
       icon: CheckCircle,
-      content: [
-        'By accessing our platform, you agree to these Terms of Service',
-        'You must be at least 13 years old to use our services',
-        'You are responsible for maintaining account security',
-        'These terms may be updated periodically with notice'
-      ]
+      content: 'By accessing and using OrryGames (https://orrygames.com), you agree to be bound by these Terms of Service, all applicable laws, and regulations. If you do not agree with any of these terms, you are prohibited from using or accessing this site.'
     },
     {
-      title: 'Permitted Use',
-      icon: CheckCircle,
-      content: [
-        'Access and play games for personal entertainment',
-        'Share game links with friends and family',
-        'Provide feedback and suggestions for improvement',
-        'Use accessibility features as needed',
-        'Report bugs and technical issues'
-      ]
-    },
-    {
-      title: 'Prohibited Activities',
-      icon: XCircle,
-      content: [
-        'Attempting to hack, exploit, or manipulate games',
-        'Using automated bots or scripts to play games',
-        'Distributing malware or malicious code',
-        'Impersonating other users or staff members',
-        'Violating any applicable laws or regulations'
-      ]
-    },
-    {
-      title: 'Intellectual Property',
+      title: '2. Use License',
       icon: Scale,
-      content: [
-        'All games and content are protected by copyright',
-        'You may not copy, modify, or redistribute our games',
-        'Game names and logos are registered trademarks',
-        'User-generated content remains your property',
-        'We respect third-party intellectual property rights'
+      content: 'Permission is granted to temporarily access the games and content on OrryGames for personal, non-commercial transitory viewing only. This is the grant of a license, not a transfer of title, and under this license, you may not:',
+      list: [
+        'Modify or copy the materials;',
+        'Use the materials for any commercial purpose or public display;',
+        'Attempt to decompile or reverse engineer any software contained on OrryGames;',
+        'Remove any copyright or other proprietary notations from the materials.'
       ]
     },
     {
-      title: 'Disclaimer and Liability',
+      title: '3. Intellectual Property Rights',
+      icon: Scale,
+      content: 'OrryGames acts as a platform for browser-based games. Most games hosted on this site are the property of their respective developers/owners. OrryGames claims no ownership over third-party games provided via iframe or API. If you are a copyright owner and believe your work has been uploaded without authorization, please contact us at contact.orrygames@gmail.com.'
+    },
+    {
+      title: '4. User Conduct',
       icon: AlertCircle,
-      content: [
-        'Games are provided "as is" without warranties',
-        'We are not liable for interruptions or data loss',
-        'External links are provided for convenience only',
-        'We do not guarantee specific game availability',
-        'Maximum liability is limited by applicable law'
+      content: 'Users agree to use the site for lawful purposes only. You are prohibited from:',
+      list: [
+        'Using scripts or bots to harvest data or interact with the site;',
+        'Attempting to disrupt the website\'s servers or security;',
+        'Engaging in any behavior that violates Google\'s Publisher Policies, including the use of software to "click-exchange" ads.'
       ]
+    },
+    {
+      title: '5. Disclaimer & Limitation of Liability',
+      icon: XCircle,
+      content: 'The materials on OrryGames are provided on an \'as is\' basis. OrryGames makes no warranties, expressed or implied. In no event shall OrryGames or its suppliers be liable for any damages (including, without limitation, loss of data or profit) arising out of the use or inability to use the games on our platform.'
+    },
+    {
+      title: '6. Advertisements and External Links',
+      icon: AlertCircle,
+      content: 'We use Google AdSense to serve advertisements. By using this site, you acknowledge that third-party vendors use cookies to serve ads based on your prior visits. We have no control over the content of external sites linked from our platform and are not responsible for their practices.'
+    },
+    {
+      title: '7. Governing Law',
+      icon: Scale,
+      content: 'These terms and conditions are governed by and construed in accordance with the laws of your jurisdiction, and you irrevocably submit to the exclusive jurisdiction of the courts in that location.'
+    },
+    {
+      title: '8. Modifications',
+      icon: CheckCircle,
+      content: 'OrryGames may revise these Terms of Service at any time without notice. By using this website, you are agreeing to be bound by the then-current version of these Terms.'
     }
   ];
 
@@ -76,23 +73,16 @@ export default function TermsOfServicePage({ onNavigate }: TermsOfServicePagePro
             Please read these terms carefully before using our gaming platform.
           </p>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-            Last updated: January 10, 2026
+            Last updated: January 16, 2026
           </p>
         </div>
 
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 mb-8">
-          <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
-            Welcome to our gaming platform. These Terms of Service govern your use of our website and
-            services. By accessing or using our platform, you agree to be bound by these terms and our
-            Privacy Policy.
-          </p>
-
-          <div className="space-y-8 mt-8">
+          <div className="space-y-8">
             {sections.map((section, idx) => {
               const Icon = section.icon;
-              const isProhibited = section.title === 'Prohibited Activities';
-              const borderColor = isProhibited ? 'border-red-500' : 'border-green-500';
-              const iconColor = isProhibited ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400';
+              const borderColor = 'border-green-500';
+              const iconColor = 'text-green-600 dark:text-green-400';
 
               return (
                 <div key={idx} className={`border-l-4 ${borderColor} pl-6`}>
@@ -102,16 +92,21 @@ export default function TermsOfServicePage({ onNavigate }: TermsOfServicePagePro
                       {section.title}
                     </h2>
                   </div>
-                  <ul className="space-y-3">
-                    {section.content.map((item, itemIdx) => (
-                      <li key={itemIdx} className="flex items-start gap-3">
-                        <span className={`${iconColor} mt-1.5`}>•</span>
-                        <span className="text-gray-700 dark:text-gray-300 leading-relaxed">
-                          {item}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
+                  <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-3">
+                    {section.content}
+                  </p>
+                  {section.list && (
+                    <ul className="space-y-2 mt-3">
+                      {section.list.map((item, itemIdx) => (
+                        <li key={itemIdx} className="flex items-start gap-3">
+                          <span className={`${iconColor} mt-1.5`}>•</span>
+                          <span className="text-gray-700 dark:text-gray-300 leading-relaxed">
+                            {item}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </div>
               );
             })}
