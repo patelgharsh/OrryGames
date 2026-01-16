@@ -328,11 +328,11 @@ export default function PrivacyPolicyPage({ onNavigate }: PrivacyPolicyPageProps
                 By using our website (https://orrygames.com), you hereby consent to our Privacy Policy and agree to its terms.
                 If you do not agree with this Privacy Policy, please do not use our website. Your continued use of the website
                 following the posting of changes to this policy will be deemed your acceptance of those changes.
-              </p>
+            </div>
+                      </p>
               <p className="text-right text-sm text-gray-500 dark:text-gray-400 mt-4 italic">
       Last Updated: 14 January 2026
     </p>
-            </div>
           </section>
 
         </div>
