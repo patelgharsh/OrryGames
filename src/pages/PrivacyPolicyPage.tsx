@@ -351,7 +351,7 @@ export default function PrivacyPolicyPage({ onNavigate }: PrivacyPolicyPageProps
 
         <div className="text-center">
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            This Privacy Policy is compliant with GDPR, CCPA, COPPA, and Google AdSense requirements.
+            This Privacy Policy is compliant with GDPR, CCPA, and COPPA.
           </p>
         </div>
       </div>
