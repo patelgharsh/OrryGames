@@ -1,5 +1,5 @@
 import { useEffect, useState, memo } from 'react';
-import { supabase, Game } from '../lib/supabase';
+import { Game, getGamesByFeaturedSection } from '../data/games';
 import GameCard from '../components/GameCard';
 import GameCardSkeleton from '../components/GameCardSkeleton';
 import Hero from '../components/Hero';
@@ -21,19 +21,12 @@ export default function HomePage({ onGameClick, onNavigate }: HomePageProps) {
     loadGames();
   }, []);
 
-  async function loadGames() {
+  function loadGames() {
     try {
-      const [newGamesData, weekly, hot, best] = await Promise.all([
-        supabase.from('games').select('*').eq('featured_section', 'new').order('created_at', { ascending: false }).limit(7),
-        supabase.from('games').select('*').eq('featured_section', 'weekly').limit(7),
-        supabase.from('games').select('*').eq('featured_section', 'hot').limit(7),
-        supabase.from('games').select('*').eq('featured_section', 'best').limit(7)
-      ]);
-
-      if (newGamesData.data) setNewGames(newGamesData.data);
-      if (weekly.data) setWeeklyGames(weekly.data);
-      if (hot.data) setHotGames(hot.data);
-      if (best.data) setBestGames(best.data);
+      setNewGames(getGamesByFeaturedSection('new', 7));
+      setWeeklyGames(getGamesByFeaturedSection('weekly', 7));
+      setHotGames(getGamesByFeaturedSection('hot', 7));
+      setBestGames(getGamesByFeaturedSection('best', 7));
     } catch (error) {
       console.error('Error loading games:', error);
     } finally {

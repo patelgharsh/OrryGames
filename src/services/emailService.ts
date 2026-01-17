@@ -1,5 +1,3 @@
-import { encryptData, decryptData } from '../lib/encryption';
-
 export interface EmailFormData {
   name: string;
   email: string;
@@ -46,44 +44,14 @@ export const sendEmail = async (formData: EmailFormData): Promise<EmailResponse>
       };
     }
 
-    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-    if (!supabaseUrl) {
-      throw new Error('Missing Supabase configuration');
-    }
+    const emailBody = `Name: ${formData.name}%0D%0AEmail: ${formData.email}%0D%0A%0D%0A${encodeURIComponent(formData.message)}`;
+    const mailtoLink = `mailto:contact.orrygames@gmail.com?subject=${encodeURIComponent(formData.subject)}&body=${emailBody}`;
 
-    const encryptedPayload = encryptData({
-      action: 'send-email',
-      payload: {
-        name: formData.name,
-        email: formData.email,
-        subject: formData.subject,
-        message: formData.message,
-      }
-    });
-
-    const response = await fetch(`${supabaseUrl}/functions/v1/api-gateway`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        data: encryptedPayload,
-      }),
-    });
-
-    const result = await response.json();
-    const decryptedResult = result.data ? decryptData(result.data) : result;
-
-    if (!response.ok) {
-      return {
-        success: false,
-        message: decryptedResult.message || 'Failed to send message. Please try again later.'
-      };
-    }
+    window.location.href = mailtoLink;
 
     return {
-      success: decryptedResult.success,
-      message: decryptedResult.message
+      success: true,
+      message: 'Opening your email client. Please send the email from there.'
     };
   } catch (error) {
     console.error('Email send error:', error);

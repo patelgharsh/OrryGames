@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { supabase, Game } from '../lib/supabase';
+import { Game, getGameById } from '../data/games';
 import { ArrowLeft, Star, Play, Share2 } from 'lucide-react';
 
 interface GamePageProps {
@@ -28,16 +28,10 @@ export default function GamePage({ gameId, onBack }: GamePageProps) {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  async function loadGame() {
+  function loadGame() {
     try {
-      const { data, error } = await supabase
-        .from('games')
-        .select('*')
-        .eq('id', gameId)
-        .maybeSingle();
-
-      if (error) throw error;
-      setGame(data);
+      const gameData = getGameById(gameId);
+      setGame(gameData || null);
     } catch (error) {
       console.error('Error loading game:', error);
     } finally {

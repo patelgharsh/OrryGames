@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
-import { supabase, Game } from '../lib/supabase';
+import { Game, GAMES_DATA, CATEGORIES } from '../data/games';
 import GameCard from '../components/GameCard';
 import GameCardSkeleton from '../components/GameCardSkeleton';
 import { Filter, X, SlidersHorizontal, Search } from 'lucide-react';
@@ -7,22 +7,6 @@ import { Filter, X, SlidersHorizontal, Search } from 'lucide-react';
 interface GamesListPageProps {
   onGameClick: (gameId: string) => void;
 }
-
-const CATEGORIES = [
-  'All',
-  'Action',
-  'Adventure',
-  'Arcade',
-  'Clicker',
-  'Cooking',
-  'Girls',
-  'Hypercasual',
-  'Multiplayer',
-  'Puzzle',
-  'Racing',
-  'Shooting',
-  'Sports'
-];
 
 export default function GamesListPage({ onGameClick }: GamesListPageProps) {
   const [games, setGames] = useState<Game[]>([]);
@@ -71,18 +55,10 @@ export default function GamesListPage({ onGameClick }: GamesListPageProps) {
     );
   };
 
-  async function loadGames() {
+  function loadGames() {
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from('games')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      if (data) {
-        setGames(data);
-      }
+      setGames(GAMES_DATA);
     } catch (error) {
       console.error('Error loading games:', error);
     } finally {
