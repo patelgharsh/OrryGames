@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
-import { Game, GAMES_DATA, CATEGORIES } from '../data/games';
+import { Game, GAMES_LIST, CATEGORIES, searchGames, getGamesByCategory } from '../data/games';
 import GameCard from '../components/GameCard';
 import GameCardSkeleton from '../components/GameCardSkeleton';
 import { Filter, X, SlidersHorizontal, Search } from 'lucide-react';
@@ -58,7 +58,7 @@ export default function GamesListPage({ onGameClick }: GamesListPageProps) {
   function loadGames() {
     try {
       setLoading(true);
-      setGames(GAMES_DATA);
+      setGames(GAMES_LIST);
     } catch (error) {
       console.error('Error loading games:', error);
     } finally {
@@ -70,17 +70,14 @@ export default function GamesListPage({ onGameClick }: GamesListPageProps) {
     let result = games;
 
     if (selectedCategory !== 'All') {
-      result = result.filter((game) => game.category === selectedCategory);
+      result = getGamesByCategory(selectedCategory);
     }
 
     if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase();
-      result = result.filter(
-        (game) =>
-          game.title.toLowerCase().includes(query) ||
-          game.category.toLowerCase().includes(query) ||
-          game.description?.toLowerCase().includes(query)
-      );
+      result = searchGames(searchQuery);
+      if (selectedCategory !== 'All') {
+        result = result.filter((game) => game.category === selectedCategory);
+      }
     }
 
     setFilteredGames(result);
@@ -237,10 +234,7 @@ export default function GamesListPage({ onGameClick }: GamesListPageProps) {
                 <GameCard
                   title={game.title}
                   category={game.category}
-                  rating={game.rating}
-                  plays={game.plays}
-                  creator={game.creator}
-                  thumbnailUrl={game.thumbnail_url}
+                  thumb={game.thumb}
                   onClick={() => onGameClick(game.id)}
                 />
               </div>

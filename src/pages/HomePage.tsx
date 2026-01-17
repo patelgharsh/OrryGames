@@ -1,5 +1,5 @@
 import { useEffect, useState, memo } from 'react';
-import { Game, getGamesByFeaturedSection } from '../data/games';
+import { Game, GAMES_LIST } from '../data/games';
 import GameCard from '../components/GameCard';
 import GameCardSkeleton from '../components/GameCardSkeleton';
 import Hero from '../components/Hero';
@@ -11,10 +11,7 @@ interface HomePageProps {
 }
 
 export default function HomePage({ onGameClick, onNavigate }: HomePageProps) {
-  const [newGames, setNewGames] = useState<Game[]>([]);
-  const [weeklyGames, setWeeklyGames] = useState<Game[]>([]);
-  const [hotGames, setHotGames] = useState<Game[]>([]);
-  const [bestGames, setBestGames] = useState<Game[]>([]);
+  const [games, setGames] = useState<Game[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -23,10 +20,7 @@ export default function HomePage({ onGameClick, onNavigate }: HomePageProps) {
 
   function loadGames() {
     try {
-      setNewGames(getGamesByFeaturedSection('new', 7));
-      setWeeklyGames(getGamesByFeaturedSection('weekly', 7));
-      setHotGames(getGamesByFeaturedSection('hot', 7));
-      setBestGames(getGamesByFeaturedSection('best', 7));
+      setGames(GAMES_LIST.slice(0, 28));
     } catch (error) {
       console.error('Error loading games:', error);
     } finally {
@@ -62,10 +56,7 @@ export default function HomePage({ onGameClick, onNavigate }: HomePageProps) {
               <GameCard
                 title={game.title}
                 category={game.category}
-                rating={game.rating}
-                plays={game.plays}
-                creator={game.creator}
-                thumbnailUrl={game.thumbnail_url}
+                thumb={game.thumb}
                 onClick={() => onGameClick(game.id)}
               />
             </div>
@@ -91,10 +82,10 @@ export default function HomePage({ onGameClick, onNavigate }: HomePageProps) {
       <Hero onNavigate={onNavigate} />
 
       <main className="container mx-auto px-4 py-12">
-        <GameSection title="NEW Games" games={newGames} isLoading={loading} />
-        <GameSection title="Weekly Picks" games={weeklyGames} isLoading={loading} />
-        <GameSection title="HOT Games" games={hotGames} isLoading={loading} />
-        <GameSection title="BEST Games" games={bestGames} isLoading={loading} />
+        <GameSection title="NEW Games" games={games.slice(0, 7)} isLoading={loading} />
+        <GameSection title="Puzzle Games" games={games.filter(g => g.category === 'Puzzle').slice(0, 7)} isLoading={loading} />
+        <GameSection title="Action Games" games={games.filter(g => g.category === 'Action').slice(0, 7)} isLoading={loading} />
+        <GameSection title="Arcade Games" games={games.filter(g => g.category === 'Arcade').slice(0, 7)} isLoading={loading} />
 
         <section className="bg-gradient-to-r from-orange-500 via-pink-500 to-red-500 dark:from-purple-400 dark:via-purple-500 dark:to-purple-600 rounded-3xl p-12 text-center text-white shadow-2xl animate-fade-in">
           <h2 className="text-4xl font-black mb-4">Ready to Start Playing?</h2>

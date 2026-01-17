@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { Game, getGameById } from '../data/games';
-import { ArrowLeft, Star, Play, Share2 } from 'lucide-react';
+import { ArrowLeft, Play, Share2 } from 'lucide-react';
 
 interface GamePageProps {
   gameId: string;
@@ -83,14 +83,6 @@ export default function GamePage({ gameId, onBack }: GamePageProps) {
               <h1 className="text-4xl md:text-5xl font-black text-white mb-2">
                 {game.title}
               </h1>
-              <div className="flex items-center space-x-4 text-white/90">
-                <div className="flex items-center space-x-1">
-                  <Star className="w-5 h-5 fill-yellow-300 text-yellow-300" />
-                  <span className="font-bold">{game.rating}</span>
-                </div>
-                <span className="font-semibold">{game.plays} plays</span>
-                <span className="font-semibold">By {game.creator}</span>
-              </div>
             </div>
 
             <div className="mt-4 md:mt-0 flex items-center space-x-3">
@@ -107,13 +99,13 @@ export default function GamePage({ gameId, onBack }: GamePageProps) {
 
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-6xl mx-auto">
-          <div className="bg-black dark:bg-gray-950 rounded-2xl overflow-hidden shadow-2xl mb-8 animate-scale-in border-4 border-gray-800 dark:border-gray-700 mx-auto" style={{ width: '888px', maxWidth: '100%' }}>
-            <div className="relative">
+          <div className="bg-black dark:bg-gray-950 rounded-2xl overflow-hidden shadow-2xl mb-8 animate-scale-in border-4 border-gray-800 dark:border-gray-700 mx-auto" style={{ maxWidth: '100%' }}>
+            <div className="relative flex items-center justify-center">
               <iframe
-                src={game.game_url}
+                src={game.url}
                 className="w-full"
                 scrolling="no"
-                style={{ border: 0, width: '888px', height: '498px', maxWidth: '100%' }}
+                style={{ border: 0, width: `${game.width}px`, height: `${game.height}px`, maxWidth: '100%' }}
                 title={game.title}
                 allowFullScreen
                 allow="accelerometer *; autoplay *; clipboard-write *; encrypted-media *; fullscreen *; gamepad *; gyroscope *; hid *; magnetometer *; microphone *; midi *; payment *; picture-in-picture *; publickey-credentials-get *; screen-wake-lock *; serial *; usb *; web-share *; xr-spatial-tracking *"
@@ -134,27 +126,26 @@ export default function GamePage({ gameId, onBack }: GamePageProps) {
               <Play className="w-8 h-8 text-orange-500" />
               <span>About This Game</span>
             </h2>
-            <p className="text-gray-600 dark:text-gray-300 leading-relaxed text-lg">
+            <p className="text-gray-600 dark:text-gray-300 leading-relaxed text-lg mb-6">
               {game.description}
             </p>
 
+            {game.instructions && (
+              <div className="mb-6 p-4 bg-orange-50 dark:bg-orange-900/20 rounded-xl border-2 border-orange-200 dark:border-orange-700/50">
+                <h3 className="text-xl font-black text-gray-800 dark:text-white mb-2">How to Play</h3>
+                <p className="text-gray-700 dark:text-gray-300">{game.instructions}</p>
+              </div>
+            )}
+
             <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm text-gray-500 dark:text-gray-400 font-semibold mb-1">Category</p>
                   <p className="font-bold text-gray-800 dark:text-white">{game.category}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400 font-semibold mb-1">Developer</p>
-                  <p className="font-bold text-gray-800 dark:text-white">{game.creator}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400 font-semibold mb-1">Rating</p>
-                  <p className="font-bold text-gray-800 dark:text-white">{game.rating} / 5.0</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400 font-semibold mb-1">Total Plays</p>
-                  <p className="font-bold text-gray-800 dark:text-white">{game.plays}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 font-semibold mb-1">Tags</p>
+                  <p className="font-bold text-gray-800 dark:text-white">{game.tags}</p>
                 </div>
               </div>
             </div>
