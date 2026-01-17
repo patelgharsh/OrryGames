@@ -50,11 +50,69 @@ function checkRateLimit(identifier: string): boolean {
   return true;
 }
 
-interface EmailRequest {
+interface GatewayRequest {
+  action: string;
+  payload: any;
+}
+
+interface EmailPayload {
   name: string;
   email: string;
   subject: string;
   message: string;
+}
+
+async function handleSendEmail(payload: EmailPayload) {
+  const { name, email, subject, message } = payload;
+
+  if (!name?.trim() || !email?.trim() || !subject?.trim() || !message?.trim()) {
+    return {
+      success: false,
+      message: "All fields are required",
+    };
+  }
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    return {
+      success: false,
+      message: "Invalid email address",
+    };
+  }
+
+  const serviceId = Deno.env.get("EMAILJS_SERVICE_ID");
+  const templateId = Deno.env.get("EMAILJS_TEMPLATE_ID");
+  const publicKey = Deno.env.get("EMAILJS_PUBLIC_KEY");
+
+  const emailJsResponse = await fetch(
+    "https://api.emailjs.com/api/v1.0/email/send",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        service_id: serviceId,
+        template_id: templateId,
+        user_id: publicKey,
+        template_params: {
+          from_name: name,
+          from_email: email,
+          subject: subject,
+          message: message,
+        },
+      }),
+    }
+  );
+
+  if (!emailJsResponse.ok) {
+    throw new Error("Failed to send email");
+  }
+
+  return {
+    success: true,
+    message: "Your message has been sent successfully! We will get back to you soon.",
+  };
 }
 
 Deno.serve(async (req: Request) => {
@@ -88,89 +146,30 @@ Deno.serve(async (req: Request) => {
     }
 
     const body = await req.json();
-    const { name, email, subject, message }: EmailRequest = decryptData(body.data);
+    const { action, payload }: GatewayRequest = decryptData(body.data);
 
-    if (!name?.trim() || !email?.trim() || !subject?.trim() || !message?.trim()) {
-      const encryptedError = encryptData({
-        success: false,
-        message: "All fields are required",
-      });
-      return new Response(
-        JSON.stringify({
-          data: encryptedError,
-        }),
-        {
-          status: 400,
-          headers: {
-            ...corsHeaders,
-            "Content-Type": "application/json",
-          },
-        }
-      );
+    let result;
+
+    switch (action) {
+      case "send-email":
+        result = await handleSendEmail(payload);
+        break;
+
+      default:
+        result = {
+          success: false,
+          message: "Unknown action",
+        };
     }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      const encryptedError = encryptData({
-        success: false,
-        message: "Invalid email address",
-      });
-      return new Response(
-        JSON.stringify({
-          data: encryptedError,
-        }),
-        {
-          status: 400,
-          headers: {
-            ...corsHeaders,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-    }
-
-    const serviceId = Deno.env.get("EMAILJS_SERVICE_ID");
-    const templateId = Deno.env.get("EMAILJS_TEMPLATE_ID");
-    const publicKey = Deno.env.get("EMAILJS_PUBLIC_KEY");
-
-    if (!serviceId || !templateId || !publicKey) {
-      throw new Error("Email service configuration missing");
-    }
-
-    const emailJsResponse = await fetch("https://api.emailjs.com/api/v1.0/email/send", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        service_id: serviceId,
-        template_id: templateId,
-        user_id: publicKey,
-        template_params: {
-          name,
-          email,
-          subject,
-          message,
-          time: new Date().toLocaleString(),
-        },
-      }),
-    });
-
-    if (!emailJsResponse.ok) {
-      throw new Error("Failed to send email");
-    }
-
-    const encryptedSuccess = encryptData({
-      success: true,
-      message: "Your message has been sent successfully! We will get back to you soon.",
-    });
+    const encryptedResult = encryptData(result);
 
     return new Response(
       JSON.stringify({
-        data: encryptedSuccess,
+        data: encryptedResult,
       }),
       {
-        status: 200,
+        status: result.success ? 200 : 400,
         headers: {
           ...corsHeaders,
           "Content-Type": "application/json",
@@ -178,11 +177,11 @@ Deno.serve(async (req: Request) => {
       }
     );
   } catch (error) {
-    console.error("Email send error:", error);
+    console.error("Gateway error:", error);
 
     const encryptedError = encryptData({
       success: false,
-      message: "Failed to send message. Please try again later or contact us directly at contact.orrygames@gmail.com",
+      message: "An error occurred. Please try again later.",
     });
 
     return new Response(

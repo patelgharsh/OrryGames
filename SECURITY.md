@@ -6,20 +6,25 @@ OrryGames has been architected with security as a top priority. All sensitive op
 
 ## Security Implementations
 
-### 1. Backend API Proxy Pattern
+### 1. Unified API Gateway Pattern
 
-All third-party API calls are proxied through secure server-side Edge Functions rather than being called directly from the frontend.
+All backend operations route through a single `/api-gateway` endpoint that hides the destination of all API calls.
 
 **Benefits:**
 - API keys never exposed in client-side code
-- Cannot be intercepted through browser DevTools or Network tab
+- Users only see your domain in Network tab, never external URLs
+- Cannot determine which third-party services are being used
+- Centralized routing logic for all backend operations
 - Full control over request/response validation
-- Protection against API key theft
+- Protection against API key theft and service fingerprinting
 
 **Implementation:**
-- Email service moved to Supabase Edge Function (`send-email`)
-- Frontend only communicates with your Edge Functions
+- Single gateway Edge Function (`api-gateway`) handles all backend requests
+- Frontend sends action-based requests (e.g., `{action: 'send-email', payload: {...}}`)
+- Gateway decrypts, routes to appropriate handler, and returns encrypted response
+- All third-party API calls (EmailJS, etc.) happen server-side
 - Credentials stored securely in Supabase environment variables
+- Users never see external service URLs in Network tab
 
 ### 2. End-to-End Payload Encryption
 
@@ -127,22 +132,30 @@ Comprehensive validation on both client and server sides.
 ### Email Submission Flow:
 1. User submits form on client
 2. Client validates input locally
-3. **Data encrypted using AES-256 on client**
-4. Encrypted payload sent to Edge Function (no API keys, unreadable data)
-5. Edge Function validates rate limit
-6. **Edge Function decrypts payload**
-7. Edge Function re-validates input
-8. Edge Function calls EmailJS with server-side credentials
-9. **Edge Function encrypts response**
-10. Encrypted response returned to client
-11. **Client decrypts response and displays result**
+3. **Client encrypts entire request with AES-256** (includes action: 'send-email')
+4. Encrypted payload sent to `/api-gateway` (only your domain visible)
+5. Gateway validates rate limit
+6. **Gateway decrypts payload and reads action**
+7. Gateway routes to appropriate handler (e.g., handleSendEmail)
+8. Handler re-validates input
+9. Handler calls EmailJS API with server-side credentials
+10. **Gateway encrypts response**
+11. Encrypted response returned to client
+12. **Client decrypts response and displays result**
+
+**What User Sees in Network Tab:**
+- Request URL: `https://yourdomain.com/functions/v1/api-gateway`
+- No external service URLs visible
+- No indication of which services are being used
 
 ## Security Best Practices
 
 ### What We Do:
-- Server-side API proxying
+- Unified API gateway (single endpoint for all operations)
 - End-to-end payload encryption (AES-256)
-- Rate limiting
+- Hide all external service URLs from client
+- Server-side API proxying
+- Rate limiting per IP
 - Input validation (client + server)
 - Secure credential storage
 - CORS configuration
@@ -205,66 +218,100 @@ This implementation follows OWASP Top 10 guidelines:
 ## Architecture Diagram
 
 ```
-┌─────────────────────┐
-│      Browser        │
-│  (Client + AES)     │
-└──────┬──────────────┘
-       │ Encrypted Data
-       │ (unreadable in Network Tab)
-       │
-       ▼
-┌─────────────────────┐
-│   Vite Dev Server   │
-│  Security Headers   │
-└──────────┬──────────┘
+┌──────────────────────────┐
+│        Browser           │
+│    (Client + AES)        │
+└──────────┬───────────────┘
+           │ POST /api-gateway
+           │ Encrypted: {action: 'send-email', payload: {...}}
+           │ (Only your domain visible)
+           │
+           ▼
+┌──────────────────────────┐
+│    Vite Dev Server       │
+│   Security Headers       │
+└──────────┬───────────────┘
            │ Encrypted Payload
            │
            ▼
-┌────────────────────────┐
-│  Supabase Edge Func    │
-│    - Decrypt AES       │
-│    - Rate Limiting     │
-│    - Validation        │
-│    - Encrypt Response  │
-│    - CORS              │
-└──────────┬─────────────┘
-           │ Secure Credentials
-           │
-           ▼
-┌─────────────────────┐
-│   EmailJS API       │
-│  (External Service) │
-└─────────────────────┘
+┌──────────────────────────┐
+│   API Gateway Function   │
+│   - Decrypt AES          │
+│   - Rate Limiting        │
+│   - Route by Action      │
+│   - Call Handler         │
+│   - Encrypt Response     │
+│   - CORS                 │
+└──────────┬───────────────┘
+           │ Internal Routing
+           │ (Hidden from client)
+           ├────────────────┐
+           │                │
+           ▼                ▼
+    ┌──────────┐    ┌──────────┐
+    │ Handler  │    │ Handler  │
+    │  Email   │    │  Future  │
+    └────┬─────┘    └──────────┘
+         │ Secure Credentials
+         │ (EmailJS never visible)
+         ▼
+    ┌─────────────────────┐
+    │   EmailJS API       │
+    │  (External Service) │
+    │  Hidden from Client │
+    └─────────────────────┘
 ```
 
 ## Network Traffic Inspection
 
 When viewing network requests in browser DevTools, users will see:
 
-**Request Payload:**
+**Request:**
+- URL: `https://yourdomain.com/functions/v1/api-gateway`
+- Method: `POST`
+- Payload:
 ```json
 {
   "data": "U2FsdGVkX1+kQHh3KpRvX8J7GvNm4ZU..."
 }
 ```
 
-**Response Payload:**
+**Response:**
+- Status: `200 OK`
+- Payload:
 ```json
 {
   "data": "U2FsdGVkX1/pQvZ3K2RvX8J7GvNm4..."
 }
 ```
 
-This ensures that even with full access to browser developer tools, sensitive data like names, emails, and messages cannot be read or tampered with during transmission.
+**What's Hidden:**
+- No external service URLs visible (EmailJS, future APIs)
+- No indication of which backend services are being used
+- Cannot determine what third-party integrations exist
+- All business logic and routing decisions hidden
+- Sensitive data remains encrypted throughout transmission
+
+This ensures that even with full access to browser developer tools:
+1. Users cannot see external service URLs
+2. Cannot determine which APIs or services the app uses
+3. Cannot read sensitive data in transit
+4. Cannot reverse-engineer backend architecture
 
 ## Summary
 
 OrryGames implements a defense-in-depth security strategy with multiple layers of protection:
 
-1. **Encryption Layer** - All data encrypted with AES-256 during transmission
-2. **Backend Proxy Layer** - API keys never exposed to clients
-3. **Rate Limiting Layer** - Prevents abuse and DoS attacks
-4. **Validation Layer** - Comprehensive input validation on both sides
-5. **Headers Layer** - Security headers prevent common attacks
+1. **Gateway Layer** - Single endpoint hides all backend destinations and services
+2. **Encryption Layer** - All data encrypted with AES-256 during transmission
+3. **Backend Proxy Layer** - API keys and external URLs never exposed to clients
+4. **Rate Limiting Layer** - Prevents abuse and DoS attacks per IP address
+5. **Validation Layer** - Comprehensive input validation on both sides
+6. **Headers Layer** - Security headers prevent common attacks
 
-This multi-layered approach ensures that even if one layer is compromised, others provide continued protection. Data remains secure, private, and unreadable to unauthorized parties.
+This multi-layered approach ensures:
+- Users cannot see which services or APIs the application uses
+- External service URLs are completely hidden
+- Even if one layer is compromised, others provide continued protection
+- Data remains secure, private, and unreadable to unauthorized parties
+- Backend architecture cannot be reverse-engineered from network traffic

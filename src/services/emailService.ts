@@ -52,13 +52,16 @@ export const sendEmail = async (formData: EmailFormData): Promise<EmailResponse>
     }
 
     const encryptedPayload = encryptData({
-      name: formData.name,
-      email: formData.email,
-      subject: formData.subject,
-      message: formData.message,
+      action: 'send-email',
+      payload: {
+        name: formData.name,
+        email: formData.email,
+        subject: formData.subject,
+        message: formData.message,
+      }
     });
 
-    const response = await fetch(`${supabaseUrl}/functions/v1/send-email`, {
+    const response = await fetch(`${supabaseUrl}/functions/v1/api-gateway`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
