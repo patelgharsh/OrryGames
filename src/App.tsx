@@ -12,6 +12,7 @@ import ContactUsPage from './pages/ContactUsPage';
 import FAQPage from './pages/FAQPage';
 import AboutUsPage from './pages/AboutUsPage';
 import { useToast } from './hooks/useToast';
+import { DevToolsProtection } from './components/DevToolsProtection';
 
 type Page = 'home' | 'games' | 'about' | 'contact' | 'quick-links' | 'privacy' | 'terms' | 'faq';
 
@@ -48,6 +49,7 @@ function AppContent() {
 
   return (
     <>
+      <DevToolsProtection />
       <div className="min-h-screen">
         <Header onNavigate={handleNavigate} onThemeChange={handleThemeChange} />
 

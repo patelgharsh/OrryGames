@@ -26,7 +26,37 @@ All backend operations route through a single `/api-gateway` endpoint that hides
 - Credentials stored securely in Supabase environment variables
 - Users never see external service URLs in Network tab
 
-### 2. End-to-End Payload Encryption
+### 2. Client-Side Protection
+
+Multiple layers of protection discourage casual users from inspecting or manipulating client-side code.
+
+**Benefits:**
+- Prevents casual inspection via right-click and keyboard shortcuts
+- Detects when developer tools are opened
+- Disables text selection and copying
+- Makes it harder to view source code and network requests
+- Protects against casual reverse engineering attempts
+
+**Implementation:**
+- Right-click context menu disabled
+- Keyboard shortcuts blocked (F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C, Ctrl+U)
+- DevTools detection monitors window size differences
+- Text selection and copying disabled site-wide
+- Input fields remain functional for user interaction
+- Access denied page shown when DevTools detected
+
+**Protected Actions:**
+- Right-click (context menu)
+- F12 key
+- Ctrl+Shift+I (Inspect)
+- Ctrl+Shift+J (Console)
+- Ctrl+Shift+C (Element selector)
+- Ctrl+U (View source)
+- Text selection and copy/paste
+
+**Note:** These measures deter casual users but cannot completely prevent determined individuals with technical knowledge from bypassing protections. They work alongside encryption and backend security to create multiple layers of defense.
+
+### 3. End-to-End Payload Encryption
 
 All data transmitted between the frontend and backend is encrypted using AES-256 encryption via CryptoJS.
 
@@ -59,7 +89,7 @@ Instead of readable data like:
 }
 ```
 
-### 3. Rate Limiting
+### 4. Rate Limiting
 
 Implemented at the Edge Function level to prevent abuse and DoS attacks.
 
@@ -75,7 +105,7 @@ Implemented at the Edge Function level to prevent abuse and DoS attacks.
 - Resource exhaustion
 - API abuse
 
-### 4. CORS Security
+### 5. CORS Security
 
 Strict CORS headers configured on all Edge Functions.
 
@@ -88,7 +118,7 @@ Access-Control-Allow-Headers: Content-Type, Authorization, X-Client-Info, Apikey
 
 **Note:** While currently set to `*` for development, in production this should be restricted to your specific domain(s).
 
-### 5. Security Headers
+### 6. Security Headers
 
 Multiple security headers configured in Vite to protect against common attacks.
 
@@ -99,7 +129,7 @@ Multiple security headers configured in Vite to protect against common attacks.
 - `Referrer-Policy: strict-origin-when-cross-origin` - Controls referrer information
 - `Permissions-Policy` - Restricts access to device features
 
-### 6. Input Validation
+### 7. Input Validation
 
 Comprehensive validation on both client and server sides.
 
@@ -114,7 +144,7 @@ Comprehensive validation on both client and server sides.
 - Sanitizes data before processing
 - Prevents injection attacks
 
-### 7. Environment Variable Security
+### 8. Environment Variable Security
 
 **Frontend (.env):**
 - Only non-sensitive configuration exposed
@@ -303,15 +333,19 @@ This ensures that even with full access to browser developer tools:
 OrryGames implements a defense-in-depth security strategy with multiple layers of protection:
 
 1. **Gateway Layer** - Single endpoint hides all backend destinations and services
-2. **Encryption Layer** - All data encrypted with AES-256 during transmission
-3. **Backend Proxy Layer** - API keys and external URLs never exposed to clients
-4. **Rate Limiting Layer** - Prevents abuse and DoS attacks per IP address
-5. **Validation Layer** - Comprehensive input validation on both sides
-6. **Headers Layer** - Security headers prevent common attacks
+2. **Client Protection Layer** - Disables DevTools access, right-click, and keyboard shortcuts
+3. **Encryption Layer** - All data encrypted with AES-256 during transmission
+4. **Backend Proxy Layer** - API keys and external URLs never exposed to clients
+5. **Rate Limiting Layer** - Prevents abuse and DoS attacks per IP address
+6. **Validation Layer** - Comprehensive input validation on both sides
+7. **Headers Layer** - Security headers prevent common attacks
 
 This multi-layered approach ensures:
+- Casual users cannot easily inspect or manipulate the application
+- DevTools and source code access is restricted
 - Users cannot see which services or APIs the application uses
 - External service URLs are completely hidden
 - Even if one layer is compromised, others provide continued protection
 - Data remains secure, private, and unreadable to unauthorized parties
 - Backend architecture cannot be reverse-engineered from network traffic
+- Multiple deterrents discourage reverse engineering and data extraction
