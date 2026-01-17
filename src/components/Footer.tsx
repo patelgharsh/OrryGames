@@ -36,7 +36,7 @@ export default function Footer({ onNavigate }: FooterProps) {
           {/* 2️⃣ TEXT */}
           <div className="flex items-center">
             <p className="text-gray-400 text-sm md:text-base leading-relaxed max-w-sm">
-              Your ultimate destination for free online games! Play hundreds of exciting games across all categories, from action-packed adventures to brain-teasing puzzles. Built for gamers worldwide.
+              Your ultimate destination for free online games! Play hundreds of exciting games across all categories, from action packed adventures to brain-teasing puzzles. Built for gamers worldwide.
             </p>
           </div>
 
