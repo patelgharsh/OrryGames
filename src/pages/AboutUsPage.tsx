@@ -65,7 +65,7 @@ export default function AboutUsPage({ onNavigate }: AboutUsPageProps) {
             About Us
           </h1>
           <p className="text-2xl md:text-3xl text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-pink-500 font-bold max-w-4xl mx-auto leading-relaxed mb-4">
-            Welcome to OrryGames – Your Ultimate Destination for Instant Fun!
+            Welcome to OrryGames Your Ultimate Destination for Instant Fun!
           </p>
           <p className="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed">
             At OrryGames (<a href="https://orrygames.com" target="_blank" rel="noopener noreferrer" className="text-orange-500 hover:underline">https://orrygames.com</a>), we believe that gaming should be accessible, high-quality, and, most importantly, free for everyone. Our mission is to provide a seamless browser-based gaming experience that brings joy to players of all ages, anywhere in the world.
