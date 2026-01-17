@@ -45,8 +45,8 @@ export default function PrivacyPolicyPage({ onNavigate }: PrivacyPolicyPageProps
               2. Google AdSense & DoubleClick Cookie
             </h2>
             <p className="text-gray-700 dark:text-gray-300 leading-relaxed mt-4">
-              OrryGames uses Google AdSense, a third-party advertising service, to serve advertisements on our website.
-              Google, as a third-party vendor, uses cookies to serve ads on https://orrygames.com based on your prior visits
+              OrryGames uses Google AdSense, a third party advertising service, to serve advertisements on our website.
+              Google, as a third party vendor, uses cookies to serve ads on https://orrygames.com based on your prior visits
               to our website and other websites on the Internet.
             </p>
 
@@ -100,13 +100,13 @@ export default function PrivacyPolicyPage({ onNavigate }: PrivacyPolicyPageProps
               <li>Other third-party ad servers or ad networks as applicable</li>
             </ul>
             <p className="text-gray-700 dark:text-gray-300 leading-relaxed mt-4">
-              These third-party ad servers or ad networks use technologies like cookies, JavaScript, or web beacons in their
+              These third party ad servers or ad networks use technologies like cookies, JavaScript, or web beacons in their
               respective advertisements and links that appear on OrryGames, which are sent directly to your browser. They
               automatically receive your IP address when this occurs. These technologies are used to measure the effectiveness
               of their advertising campaigns and/or to personalize the advertising content that you see on websites that you visit.
             </p>
             <p className="text-gray-700 dark:text-gray-300 leading-relaxed mt-4 font-semibold">
-              Please note that OrryGames has no access to or control over these cookies that are used by third-party advertisers.
+              Please note that OrryGames has no access to or control over these cookies that are used by third party advertisers.
               We do not control the data collection or use practices of these third parties.
             </p>
           </section>
