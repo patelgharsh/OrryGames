@@ -3,7 +3,7 @@ import Toast from '../components/Toast';
 
 interface ToastConfig {
   message: string;
-  type?: 'success' | 'info' | 'theme-light' | 'theme-dark';
+  type?: 'success' | 'error' | 'info' | 'theme-light' | 'theme-dark';
   duration?: number;
 }
 

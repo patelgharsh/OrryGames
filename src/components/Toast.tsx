@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
-import { CheckCircle, Moon, Sun, X } from 'lucide-react';
+import { CheckCircle, Moon, Sun, X, XCircle } from 'lucide-react';
 
 interface ToastProps {
   message: string;
-  type?: 'success' | 'info' | 'theme-light' | 'theme-dark';
+  type?: 'success' | 'error' | 'info' | 'theme-light' | 'theme-dark';
   duration?: number;
   onClose: () => void;
 }
@@ -22,6 +22,7 @@ export default function Toast({ message, type = 'success', duration = 2000, onCl
 
   const icons = {
     'success': <CheckCircle className="w-5 h-5" />,
+    'error': <XCircle className="w-5 h-5" />,
     'info': <CheckCircle className="w-5 h-5" />,
     'theme-light': <Sun className="w-5 h-5" />,
     'theme-dark': <Moon className="w-5 h-5" />
@@ -29,6 +30,7 @@ export default function Toast({ message, type = 'success', duration = 2000, onCl
 
   const colors = {
     'success': 'bg-green-500 dark:bg-green-600',
+    'error': 'bg-red-500 dark:bg-red-600',
     'info': 'bg-blue-500 dark:bg-blue-600',
     'theme-light': 'bg-gradient-to-r from-orange-500 to-yellow-500',
     'theme-dark': 'bg-gradient-to-r from-gray-700 to-gray-900'

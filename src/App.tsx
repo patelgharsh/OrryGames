@@ -22,6 +22,16 @@ function AppContent() {
   const [selectedGameId, setSelectedGameId] = useState<string | null>(null);
   const { showToast, ToastContainer } = useToast();
 
+  // Handle deep linking from URL parameters
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const gameId = params.get('game');
+    if (gameId) {
+      setSelectedGameId(gameId);
+      setCurrentPage('games');
+    }
+  }, []);
+
   const handleNavigate = useCallback((page: string) => {
     setCurrentPage(page as Page);
     setSelectedGameId(null);
@@ -54,7 +64,7 @@ function AppContent() {
         <Header onNavigate={handleNavigate} onThemeChange={handleThemeChange} />
 
         {selectedGameId ? (
-          <GamePage gameId={selectedGameId} onBack={handleBackToHome} />
+          <GamePage gameId={selectedGameId} onBack={handleBackToHome} showToast={showToast} />
         ) : currentPage === 'home' ? (
           <HomePage onGameClick={handleGameClick} onNavigate={handleNavigate} />
         ) : currentPage === 'games' ? (

@@ -5,9 +5,10 @@ import { ArrowLeft, Play, Share2 } from 'lucide-react';
 interface GamePageProps {
   gameId: string;
   onBack: () => void;
+  showToast: (options: { message: string; type: string; duration?: number }) => void;
 }
 
-export default function GamePage({ gameId, onBack }: GamePageProps) {
+export default function GamePage({ gameId, onBack, showToast }: GamePageProps) {
   const [game, setGame] = useState<Game | null>(null);
   const [loading, setLoading] = useState(true);
   const [showDescription, setShowDescription] = useState(false);
@@ -36,6 +37,56 @@ export default function GamePage({ gameId, onBack }: GamePageProps) {
       console.error('Error loading game:', error);
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleShare() {
+    const gameUrl = `${window.location.origin}${window.location.pathname}?game=${gameId}`;
+
+    try {
+      // Try using the modern Clipboard API
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(gameUrl);
+        showToast({
+          message: 'Game link copied successfully!',
+          type: 'success',
+          duration: 3000
+        });
+      } else {
+        // Fallback for older browsers
+        const textArea = document.createElement('textarea');
+        textArea.value = gameUrl;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        textArea.style.top = '-999999px';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+
+        try {
+          document.execCommand('copy');
+          showToast({
+            message: 'Game link copied successfully!',
+            type: 'success',
+            duration: 3000
+          });
+        } catch (err) {
+          showToast({
+            message: 'Failed to copy link. Please try again.',
+            type: 'error',
+            duration: 3000
+          });
+        } finally {
+          document.body.removeChild(textArea);
+        }
+      }
+    } catch (error) {
+      console.error('Error copying to clipboard:', error);
+      showToast({
+        message: 'Failed to copy link. Please try again.',
+        type: 'error',
+        duration: 3000
+      });
     }
   }
 
@@ -89,7 +140,11 @@ export default function GamePage({ gameId, onBack }: GamePageProps) {
               <span className="px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full font-bold text-white">
                 {game.category}
               </span>
-              <button className="p-3 bg-white/20 backdrop-blur-sm rounded-full hover:bg-white/30 transition-colors">
+              <button
+                onClick={handleShare}
+                className="p-3 bg-white/20 backdrop-blur-sm rounded-full hover:bg-white/30 transition-colors"
+                aria-label="Share game"
+              >
                 <Share2 className="w-5 h-5 text-white" />
               </button>
             </div>
